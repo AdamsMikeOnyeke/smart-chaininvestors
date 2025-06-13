@@ -8,22 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Wallet, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WithdrawalRequest {
   id: string;
-  username: string;
   amount: number;
-  btcAddress: string;
-  timestamp: Date;
+  btc_address: string;
+  created_at: string;
   status: 'pending' | 'approved' | 'rejected';
 }
 
-interface UserDashboardProps {
-  username: string;
-  onLogout: () => void;
-}
-
-const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
+const UserDashboard = () => {
+  const { user, signOut } = useAuth();
   const [balance, setBalance] = useState(0);
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [withdrawalAddress, setWithdrawalAddress] = useState("");
@@ -34,52 +31,41 @@ const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
   const depositAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
 
   useEffect(() => {
-    // Load user balance
-    const balances = localStorage.getItem('userBalances');
-    if (balances) {
-      const userBalances = JSON.parse(balances);
-      const userBalance = userBalances.find((user: any) => user.username === username);
-      if (userBalance) {
-        setBalance(userBalance.balance);
-      } else {
-        // Create new user with 0 balance
-        const newUserBalances = [...userBalances, { username, balance: 0 }];
-        localStorage.setItem('userBalances', JSON.stringify(newUserBalances));
-      }
-    } else {
-      // Initialize user balances
-      const initialBalances = [{ username, balance: 0 }];
-      localStorage.setItem('userBalances', JSON.stringify(initialBalances));
+    if (user) {
+      loadUserBalance();
+      loadUserWithdrawals();
     }
+  }, [user]);
 
-    // Load user's withdrawal requests
-    const requests = localStorage.getItem('withdrawalRequests');
-    if (requests) {
-      const allRequests = JSON.parse(requests).map((req: any) => ({
-        ...req,
-        timestamp: new Date(req.timestamp)
-      }));
-      const userRequests = allRequests.filter((req: WithdrawalRequest) => req.username === username);
-      setUserWithdrawals(userRequests);
+  const loadUserBalance = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_balances')
+        .select('balance')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error) throw error;
+      setBalance(Number(data.balance) || 0);
+    } catch (error) {
+      console.error('Error loading balance:', error);
     }
-  }, [username]);
+  };
 
-  // Update balance when localStorage changes
-  useEffect(() => {
-    const updateBalance = () => {
-      const balances = localStorage.getItem('userBalances');
-      if (balances) {
-        const userBalances = JSON.parse(balances);
-        const userBalance = userBalances.find((user: any) => user.username === username);
-        if (userBalance) {
-          setBalance(userBalance.balance);
-        }
-      }
-    };
+  const loadUserWithdrawals = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
 
-    const interval = setInterval(updateBalance, 1000);
-    return () => clearInterval(interval);
-  }, [username]);
+      if (error) throw error;
+      setUserWithdrawals(data || []);
+    } catch (error) {
+      console.error('Error loading withdrawals:', error);
+    }
+  };
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -97,7 +83,7 @@ const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
     }
   };
 
-  const handleWithdrawal = () => {
+  const handleWithdrawal = async () => {
     const amount = parseFloat(withdrawalAmount);
     
     if (!withdrawalAmount || !withdrawalAddress) {
@@ -127,33 +113,33 @@ const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
       return;
     }
 
-    // Create withdrawal request
-    const newRequest: WithdrawalRequest = {
-      id: Date.now().toString(),
-      username,
-      amount,
-      btcAddress: withdrawalAddress,
-      timestamp: new Date(),
-      status: 'pending'
-    };
+    try {
+      const { error } = await supabase
+        .from('withdrawal_requests')
+        .insert({
+          user_id: user?.id,
+          amount: amount,
+          btc_address: withdrawalAddress,
+        });
 
-    // Save to localStorage
-    const existingRequests = localStorage.getItem('withdrawalRequests');
-    const requests = existingRequests ? JSON.parse(existingRequests) : [];
-    requests.push(newRequest);
-    localStorage.setItem('withdrawalRequests', JSON.stringify(requests));
+      if (error) throw error;
 
-    // Update local state
-    setUserWithdrawals([...userWithdrawals, newRequest]);
+      toast({
+        title: "Withdrawal Request Submitted",
+        description: "Your withdrawal request has been submitted for admin approval.",
+      });
 
-    toast({
-      title: "Withdrawal Request Submitted",
-      description: "Your withdrawal request has been submitted for admin approval.",
-    });
-
-    // Clear form
-    setWithdrawalAmount("");
-    setWithdrawalAddress("");
+      // Clear form and reload data
+      setWithdrawalAmount("");
+      setWithdrawalAddress("");
+      loadUserWithdrawals();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit withdrawal request.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -168,6 +154,8 @@ const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
         return 'bg-gray-600';
     }
   };
+
+  const username = user?.user_metadata?.username || user?.email || 'User';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-orange-900 p-4">
@@ -185,7 +173,7 @@ const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
               <p className="text-gray-300">Manage your Bitcoin portfolio</p>
             </div>
           </div>
-          <Button onClick={onLogout} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+          <Button onClick={signOut} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
             Logout
           </Button>
         </div>
@@ -328,15 +316,15 @@ const UserDashboard = ({ username, onLogout }: UserDashboardProps) => {
                       <div key={request.id} className="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
                         <div className="flex justify-between items-start mb-2">
                           <div>
-                            <p className="text-white font-semibold">{request.amount.toFixed(8)} BTC</p>
-                            <p className="text-gray-300 text-sm">{request.timestamp.toLocaleString()}</p>
+                            <p className="text-white font-semibold">{Number(request.amount).toFixed(8)} BTC</p>
+                            <p className="text-gray-300 text-sm">{new Date(request.created_at).toLocaleString()}</p>
                           </div>
                           <Badge className={`${getStatusColor(request.status)} text-white capitalize`}>
                             {request.status}
                           </Badge>
                         </div>
                         <p className="text-gray-400 text-xs break-all">
-                          To: {request.btcAddress}
+                          To: {request.btc_address}
                         </p>
                       </div>
                     ))}

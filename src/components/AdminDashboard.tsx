@@ -8,26 +8,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Check, X, User, Wallet } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WithdrawalRequest {
   id: string;
-  username: string;
   amount: number;
-  btcAddress: string;
-  timestamp: Date;
+  btc_address: string;
+  created_at: string;
   status: 'pending' | 'approved' | 'rejected';
+  profiles: {
+    username: string;
+  };
 }
 
 interface UserBalance {
-  username: string;
+  user_id: string;
   balance: number;
+  profiles: {
+    username: string;
+  };
 }
 
-interface AdminDashboardProps {
-  onLogout: () => void;
-}
-
-const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
+const AdminDashboard = () => {
+  const { signOut } = useAuth();
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [userBalances, setUserBalances] = useState<UserBalance[]>([]);
   const [selectedUser, setSelectedUser] = useState("");
@@ -35,64 +39,105 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [operation, setOperation] = useState<'add' | 'subtract'>('add');
   const { toast } = useToast();
 
-  // Load data from localStorage on component mount
   useEffect(() => {
-    const requests = localStorage.getItem('withdrawalRequests');
-    const balances = localStorage.getItem('userBalances');
-    
-    if (requests) {
-      const parsedRequests = JSON.parse(requests).map((req: any) => ({
-        ...req,
-        timestamp: new Date(req.timestamp)
-      }));
-      setWithdrawalRequests(parsedRequests);
-    }
-    
-    if (balances) {
-      setUserBalances(JSON.parse(balances));
-    } else {
-      // Initialize with some demo users
-      const initialBalances = [
-        { username: 'john_doe', balance: 0.05 },
-        { username: 'jane_smith', balance: 0.12 },
-        { username: 'crypto_trader', balance: 0.08 }
-      ];
-      setUserBalances(initialBalances);
-      localStorage.setItem('userBalances', JSON.stringify(initialBalances));
-    }
+    loadWithdrawalRequests();
+    loadUserBalances();
   }, []);
 
-  const handleWithdrawalAction = (requestId: string, action: 'approve' | 'reject') => {
-    const updatedRequests = withdrawalRequests.map(request => {
-      if (request.id === requestId) {
-        const updatedRequest = { ...request, status: action === 'approve' ? 'approved' as const : 'rejected' as const };
-        
-        if (action === 'approve') {
-          // Subtract the withdrawal amount from user balance
-          const updatedBalances = userBalances.map(user => 
-            user.username === request.username 
-              ? { ...user, balance: user.balance - request.amount }
-              : user
-          );
-          setUserBalances(updatedBalances);
-          localStorage.setItem('userBalances', JSON.stringify(updatedBalances));
-        }
-        
-        return updatedRequest;
-      }
-      return request;
-    });
-    
-    setWithdrawalRequests(updatedRequests);
-    localStorage.setItem('withdrawalRequests', JSON.stringify(updatedRequests));
-    
-    toast({
-      title: `Withdrawal ${action === 'approve' ? 'Approved' : 'Rejected'}`,
-      description: `The withdrawal request has been ${action === 'approve' ? 'approved' : 'rejected'}.`,
-    });
+  const loadWithdrawalRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select(`
+          *,
+          profiles (username)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setWithdrawalRequests(data || []);
+    } catch (error) {
+      console.error('Error loading withdrawal requests:', error);
+    }
   };
 
-  const handleBalanceUpdate = () => {
+  const loadUserBalances = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_balances')
+        .select(`
+          *,
+          profiles (username)
+        `);
+
+      if (error) throw error;
+      setUserBalances(data || []);
+    } catch (error) {
+      console.error('Error loading user balances:', error);
+    }
+  };
+
+  const handleWithdrawalAction = async (requestId: string, action: 'approve' | 'reject') => {
+    try {
+      if (action === 'approve') {
+        // Find the withdrawal request
+        const request = withdrawalRequests.find(req => req.id === requestId);
+        if (!request) return;
+
+        // Get current user balance
+        const { data: balanceData, error: balanceError } = await supabase
+          .from('user_balances')
+          .select('balance')
+          .eq('user_id', request.profiles.username) // Note: This might need adjustment based on actual user ID
+          .single();
+
+        if (balanceError) throw balanceError;
+
+        const currentBalance = Number(balanceData.balance);
+        if (currentBalance < request.amount) {
+          toast({
+            title: "Error",
+            description: "User has insufficient balance for this withdrawal.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Update user balance
+        const { error: updateError } = await supabase
+          .from('user_balances')
+          .update({ balance: currentBalance - request.amount })
+          .eq('user_id', request.profiles.username);
+
+        if (updateError) throw updateError;
+      }
+
+      // Update withdrawal request status
+      const { error } = await supabase
+        .from('withdrawal_requests')
+        .update({ status: action === 'approve' ? 'approved' : 'rejected' })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: `Withdrawal ${action === 'approve' ? 'Approved' : 'Rejected'}`,
+        description: `The withdrawal request has been ${action === 'approve' ? 'approved' : 'rejected'}.`,
+      });
+
+      // Reload data
+      loadWithdrawalRequests();
+      loadUserBalances();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process withdrawal request.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBalanceUpdate = async () => {
     if (!selectedUser || !balanceAmount) {
       toast({
         title: "Error",
@@ -112,30 +157,48 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       return;
     }
 
-    const updatedBalances = userBalances.map(user => {
-      if (user.username === selectedUser) {
-        const newBalance = operation === 'add' 
-          ? user.balance + amount 
-          : Math.max(0, user.balance - amount);
-        return { ...user, balance: newBalance };
-      }
-      return user;
-    });
+    try {
+      // Get current balance
+      const { data: currentData, error: fetchError } = await supabase
+        .from('user_balances')
+        .select('balance')
+        .eq('user_id', selectedUser)
+        .single();
 
-    setUserBalances(updatedBalances);
-    localStorage.setItem('userBalances', JSON.stringify(updatedBalances));
-    
-    toast({
-      title: "Balance Updated",
-      description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} BTC ${operation === 'add' ? 'to' : 'from'} ${selectedUser}'s balance.`,
-    });
-    
-    setBalanceAmount("");
+      if (fetchError) throw fetchError;
+
+      const currentBalance = Number(currentData.balance);
+      const newBalance = operation === 'add' 
+        ? currentBalance + amount 
+        : Math.max(0, currentBalance - amount);
+
+      // Update balance
+      const { error } = await supabase
+        .from('user_balances')
+        .update({ balance: newBalance })
+        .eq('user_id', selectedUser);
+
+      if (error) throw error;
+
+      toast({
+        title: "Balance Updated",
+        description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} BTC ${operation === 'add' ? 'to' : 'from'} the user's balance.`,
+      });
+
+      setBalanceAmount("");
+      loadUserBalances();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update balance.",
+        variant: "destructive",
+      });
+    }
   };
 
   const pendingRequests = withdrawalRequests.filter(req => req.status === 'pending');
   const totalUsers = userBalances.length;
-  const totalPendingAmount = pendingRequests.reduce((sum, req) => sum + req.amount, 0);
+  const totalPendingAmount = pendingRequests.reduce((sum, req) => sum + Number(req.amount), 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-red-900 p-4">
@@ -153,7 +216,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
               <p className="text-gray-300">Manage withdrawals and user balances</p>
             </div>
           </div>
-          <Button onClick={onLogout} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+          <Button onClick={signOut} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
             Logout
           </Button>
         </div>
@@ -220,16 +283,16 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Badge variant="outline" className="text-orange-400 border-orange-400">
-                                {request.username}
+                                {request.profiles.username}
                               </Badge>
                               <Badge variant="secondary" className="bg-yellow-600 text-white">
                                 Pending
                               </Badge>
                             </div>
-                            <p className="text-white font-semibold">Amount: {request.amount.toFixed(8)} BTC</p>
-                            <p className="text-gray-300 text-sm">To: {request.btcAddress}</p>
+                            <p className="text-white font-semibold">Amount: {Number(request.amount).toFixed(8)} BTC</p>
+                            <p className="text-gray-300 text-sm">To: {request.btc_address}</p>
                             <p className="text-gray-400 text-xs">
-                              Requested: {request.timestamp.toLocaleString()}
+                              Requested: {new Date(request.created_at).toLocaleString()}
                             </p>
                           </div>
                           <div className="flex space-x-2">
@@ -283,8 +346,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                         >
                           <option value="">Select a user</option>
                           {userBalances.map((user) => (
-                            <option key={user.username} value={user.username}>
-                              {user.username} (Balance: {user.balance.toFixed(8)} BTC)
+                            <option key={user.user_id} value={user.user_id}>
+                              {user.profiles.username} (Balance: {Number(user.balance).toFixed(8)} BTC)
                             </option>
                           ))}
                         </select>
@@ -330,10 +393,10 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     <h3 className="text-lg font-semibold text-white">All Users</h3>
                     <div className="space-y-2 max-h-96 overflow-y-auto">
                       {userBalances.map((user) => (
-                        <div key={user.username} className="p-3 bg-gray-700/50 rounded-lg border border-gray-600">
+                        <div key={user.user_id} className="p-3 bg-gray-700/50 rounded-lg border border-gray-600">
                           <div className="flex justify-between items-center">
-                            <span className="text-white font-medium">{user.username}</span>
-                            <span className="text-orange-400 font-bold">{user.balance.toFixed(8)} BTC</span>
+                            <span className="text-white font-medium">{user.profiles.username}</span>
+                            <span className="text-orange-400 font-bold">{Number(user.balance).toFixed(8)} BTC</span>
                           </div>
                         </div>
                       ))}
