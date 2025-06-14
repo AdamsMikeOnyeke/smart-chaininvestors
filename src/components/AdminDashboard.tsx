@@ -17,9 +17,10 @@ interface WithdrawalRequest {
   btc_address: string;
   created_at: string;
   status: 'pending' | 'approved' | 'rejected';
+  user_id: string;
   profiles: {
     username: string;
-  };
+  } | null;
 }
 
 interface UserBalance {
@@ -27,7 +28,7 @@ interface UserBalance {
   balance: number;
   profiles: {
     username: string;
-  };
+  } | null;
 }
 
 const AdminDashboard = () => {
@@ -50,12 +51,13 @@ const AdminDashboard = () => {
         .from('withdrawal_requests')
         .select(`
           *,
-          profiles (username)
+          profiles!withdrawal_requests_user_id_fkey (username)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      // Cast the status to the correct type
+      console.log('Withdrawal requests data:', data);
+      // Cast the status to the correct type and handle null profiles
       const typedData = (data || []).map(request => ({
         ...request,
         status: request.status as 'pending' | 'approved' | 'rejected'
@@ -72,10 +74,11 @@ const AdminDashboard = () => {
         .from('user_balances')
         .select(`
           *,
-          profiles (username)
+          profiles!user_balances_user_id_fkey (username)
         `);
 
       if (error) throw error;
+      console.log('User balances data:', data);
       setUserBalances(data || []);
     } catch (error) {
       console.error('Error loading user balances:', error);
@@ -93,7 +96,7 @@ const AdminDashboard = () => {
         const { data: balanceData, error: balanceError } = await supabase
           .from('user_balances')
           .select('balance')
-          .eq('user_id', request.profiles.username) // Note: This might need adjustment based on actual user ID
+          .eq('user_id', request.user_id)
           .single();
 
         if (balanceError) throw balanceError;
@@ -112,7 +115,7 @@ const AdminDashboard = () => {
         const { error: updateError } = await supabase
           .from('user_balances')
           .update({ balance: currentBalance - request.amount })
-          .eq('user_id', request.profiles.username);
+          .eq('user_id', request.user_id);
 
         if (updateError) throw updateError;
       }
@@ -288,7 +291,7 @@ const AdminDashboard = () => {
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Badge variant="outline" className="text-orange-400 border-orange-400">
-                                {request.profiles.username}
+                                {request.profiles?.username || 'Unknown User'}
                               </Badge>
                               <Badge variant="secondary" className="bg-yellow-600 text-white">
                                 Pending
@@ -352,7 +355,7 @@ const AdminDashboard = () => {
                           <option value="">Select a user</option>
                           {userBalances.map((user) => (
                             <option key={user.user_id} value={user.user_id}>
-                              {user.profiles.username} (Balance: {Number(user.balance).toFixed(8)} BTC)
+                              {user.profiles?.username || 'Unknown User'} (Balance: {Number(user.balance).toFixed(8)} BTC)
                             </option>
                           ))}
                         </select>
@@ -400,7 +403,7 @@ const AdminDashboard = () => {
                       {userBalances.map((user) => (
                         <div key={user.user_id} className="p-3 bg-gray-700/50 rounded-lg border border-gray-600">
                           <div className="flex justify-between items-center">
-                            <span className="text-white font-medium">{user.profiles.username}</span>
+                            <span className="text-white font-medium">{user.profiles?.username || 'Unknown User'}</span>
                             <span className="text-orange-400 font-bold">{Number(user.balance).toFixed(8)} BTC</span>
                           </div>
                         </div>
