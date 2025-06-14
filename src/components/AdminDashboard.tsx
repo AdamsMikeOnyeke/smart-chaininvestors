@@ -55,7 +55,12 @@ const AdminDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setWithdrawalRequests(data || []);
+      // Cast the status to the correct type
+      const typedData = (data || []).map(request => ({
+        ...request,
+        status: request.status as 'pending' | 'approved' | 'rejected'
+      }));
+      setWithdrawalRequests(typedData);
     } catch (error) {
       console.error('Error loading withdrawal requests:', error);
     }
