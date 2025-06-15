@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User, QrCode } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 
 interface WithdrawalRequest {
   id: string;
@@ -257,7 +257,7 @@ const UserDashboard = () => {
                 {/* QR Code Section */}
                 <div className="flex justify-center mb-6">
                   <div className="bg-white p-4 rounded-lg">
-                    <QRCode 
+                    <QRCodeSVG 
                       value={depositAddress} 
                       size={200}
                       level="M"
