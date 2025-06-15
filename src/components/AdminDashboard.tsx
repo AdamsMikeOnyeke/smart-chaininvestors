@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Check, X, User, Wallet, TrendingUp, DollarSign } from "lucide-react";
+import { Check, X, User, Wallet, TrendingUp, DollarSign, Copy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -121,6 +121,22 @@ const AdminDashboard = () => {
       setUserBalances(data || []);
     } catch (error) {
       console.error('Error loading user balances:', error);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied!",
+        description: "User ID copied to clipboard.",
+      });
+    } catch (err) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy to clipboard.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -404,7 +420,7 @@ const AdminDashboard = () => {
                     {pendingRequests.map((request) => (
                       <div key={request.id} className="p-4 bg-gray-900/50 rounded-lg border border-green-700">
                         <div className="flex justify-between items-start">
-                          <div className="space-y-2">
+                          <div className="space-y-3 flex-1">
                             <div className="flex items-center space-x-2">
                               <Badge variant="outline" className="text-green-400 border-green-400">
                                 {getUserDisplayName(request)}
@@ -413,14 +429,43 @@ const AdminDashboard = () => {
                                 Pending
                               </Badge>
                             </div>
-                            <p className="text-white font-semibold">Amount: {Number(request.amount).toFixed(8)} BTC</p>
-                            <p className="text-green-400 text-sm">≈ {formatUsdValue(Number(request.amount))}</p>
-                            <p className="text-green-300 text-sm">To: {request.btc_address}</p>
-                            <p className="text-green-400 text-xs">
-                              Requested: {new Date(request.created_at).toLocaleString()}
-                            </p>
+                            
+                            {/* User ID with copy button */}
+                            <div className="bg-gray-800/50 p-3 rounded border border-green-600">
+                              <Label className="text-green-200 text-xs font-medium block mb-2">User ID</Label>
+                              <div className="flex items-center space-x-2">
+                                <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-sm break-all">
+                                  {request.user_id}
+                                </code>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => copyToClipboard(request.user_id)}
+                                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <p className="text-white font-semibold">Amount: {Number(request.amount).toFixed(8)} BTC</p>
+                                <p className="text-green-400 text-sm">≈ {formatUsdValue(Number(request.amount))}</p>
+                              </div>
+                              <div>
+                                <p className="text-green-400 text-xs">
+                                  Requested: {new Date(request.created_at).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <p className="text-green-200 text-xs font-medium">Bitcoin Address:</p>
+                              <p className="text-green-300 text-sm break-all bg-gray-800/30 p-2 rounded">{request.btc_address}</p>
+                            </div>
                           </div>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-col space-y-2 ml-4">
                             <Button
                               size="sm"
                               className="bg-green-600 hover:bg-green-700 text-black"
@@ -452,7 +497,7 @@ const AdminDashboard = () => {
               <CardHeader>
                 <CardTitle className="text-white">User Balances</CardTitle>
                 <CardDescription className="text-green-300">
-                  View and manage user BTC balances by email
+                  View and manage user BTC balances
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -527,17 +572,37 @@ const AdminDashboard = () => {
                   {/* User List */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-white">All Users</h3>
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
                       {userBalances.map((user) => (
-                        <div key={user.user_id} className="p-3 bg-gray-900/50 rounded-lg border border-green-700">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <span className="text-white font-medium block">{getUserDisplayName(user)}</span>
-                              <span className="text-green-400 text-sm">{user.profiles?.username || 'No username'}</span>
+                        <div key={user.user_id} className="p-4 bg-gray-900/50 rounded-lg border border-green-700">
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <span className="text-white font-medium block">{getUserDisplayName(user)}</span>
+                                <span className="text-green-400 text-sm">{user.profiles?.username || 'No username'}</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-green-400 font-bold block">{Number(user.balance).toFixed(8)} BTC</span>
+                                <span className="text-green-300 text-sm">{formatUsdValue(Number(user.balance))}</span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-green-400 font-bold block">{Number(user.balance).toFixed(8)} BTC</span>
-                              <span className="text-green-300 text-sm">{formatUsdValue(Number(user.balance))}</span>
+                            
+                            {/* User ID display */}
+                            <div className="bg-gray-800/50 p-3 rounded border border-green-600">
+                              <Label className="text-green-200 text-xs font-medium block mb-2">User ID</Label>
+                              <div className="flex items-center space-x-2">
+                                <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-xs break-all">
+                                  {user.user_id}
+                                </code>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => copyToClipboard(user.user_id)}
+                                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
