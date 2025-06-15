@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,7 +113,8 @@ const AdminDashboard = () => {
         .select(`
           *,
           profiles!user_balances_user_id_fkey (username, email)
-        `);
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       console.log('User balances data:', data);
@@ -124,12 +124,13 @@ const AdminDashboard = () => {
     }
   };
 
-  const getUserDisplayName = (user: UserBalance | WithdrawalRequest) => {
-    if (user.profiles?.email) {
-      return user.profiles.email;
-    }
-    // Fallback: try to get email from auth.users table
-    return `User ID: ${user.user_id.substring(0, 8)}...`;
+  const getUserEmail = (user: UserBalance | WithdrawalRequest) => {
+    return user.profiles?.email || 'No email available';
+  };
+
+  const getSelectedUserEmail = () => {
+    const user = userBalances.find(u => u.user_id === selectedUser);
+    return user ? getUserEmail(user) : '';
   };
 
   const handleWithdrawalAction = async (requestId: string, action: 'approve' | 'reject') => {
@@ -228,12 +229,14 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
+      const userEmail = getSelectedUserEmail();
       toast({
         title: "Balance Updated",
-        description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} BTC ${operation === 'add' ? 'to' : 'from'} the user's balance.`,
+        description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} BTC ${operation === 'add' ? 'to' : 'from'} ${userEmail}'s balance.`,
       });
 
       setBalanceAmount("");
+      setSelectedUser("");
       loadUserBalances();
     } catch (error) {
       toast({
@@ -401,7 +404,7 @@ const AdminDashboard = () => {
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Badge variant="outline" className="text-green-400 border-green-400">
-                                {getUserDisplayName(request)}
+                                {getUserEmail(request)}
                               </Badge>
                               <Badge variant="secondary" className="bg-yellow-600 text-white">
                                 Pending
@@ -446,7 +449,7 @@ const AdminDashboard = () => {
               <CardHeader>
                 <CardTitle className="text-white">User Balances</CardTitle>
                 <CardDescription className="text-green-300">
-                  View and manage user BTC balances
+                  View and manage user BTC balances by email
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -456,20 +459,25 @@ const AdminDashboard = () => {
                     <h3 className="text-lg font-semibold text-white">Update Balance</h3>
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="user-select" className="text-green-200">Select User</Label>
+                        <Label htmlFor="user-select" className="text-green-200">Select User by Email</Label>
                         <select
                           id="user-select"
                           value={selectedUser}
                           onChange={(e) => setSelectedUser(e.target.value)}
                           className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
-                          <option value="">Select a user</option>
-                          {userBalances.map((user) => (
+                          <option value="">Select a user by email</option>
+                          {userBalances
+                            .filter(user => user.profiles?.email) // Only show users with emails
+                            .map((user) => (
                             <option key={user.user_id} value={user.user_id}>
-                              {getUserDisplayName(user)} (Balance: {Number(user.balance).toFixed(8)} BTC)
+                              {user.profiles?.email} (Balance: {Number(user.balance).toFixed(8)} BTC)
                             </option>
                           ))}
                         </select>
+                        {userBalances.filter(user => user.profiles?.email).length === 0 && (
+                          <p className="text-yellow-400 text-sm mt-1">No users with email addresses found</p>
+                        )}
                       </div>
                       
                       <div>
@@ -498,9 +506,17 @@ const AdminDashboard = () => {
                         />
                       </div>
                       
+                      {selectedUser && (
+                        <div className="p-3 bg-green-900/20 border border-green-600 rounded-md">
+                          <p className="text-green-200 text-sm">Selected user:</p>
+                          <p className="text-white font-medium">{getSelectedUserEmail()}</p>
+                        </div>
+                      )}
+                      
                       <Button 
                         onClick={handleBalanceUpdate}
                         className="w-full bg-green-600 hover:bg-green-700 text-black"
+                        disabled={!selectedUser || !balanceAmount}
                       >
                         Update Balance
                       </Button>
@@ -515,7 +531,7 @@ const AdminDashboard = () => {
                         <div key={user.user_id} className="p-3 bg-gray-900/50 rounded-lg border border-green-700">
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="text-white font-medium block">{getUserDisplayName(user)}</span>
+                              <span className="text-white font-medium block">{getUserEmail(user)}</span>
                               <span className="text-green-400 text-sm">{user.profiles?.username || 'No username'}</span>
                             </div>
                             <div className="text-right">
