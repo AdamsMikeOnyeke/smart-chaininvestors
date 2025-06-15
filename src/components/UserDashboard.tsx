@@ -163,28 +163,28 @@ const UserDashboard = () => {
   const username = user?.user_metadata?.username || user?.email || 'User';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-orange-900 p-4">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZjk1MDAiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 p-4">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxMGIxMDQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
       
       <div className="relative z-10 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold">₿</span>
+            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+              <span className="text-black font-bold">₿</span>
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">Welcome, {username}</h1>
-              <p className="text-gray-300">Manage your Bitcoin portfolio</p>
+              <p className="text-green-300">Manage your Bitcoin portfolio</p>
             </div>
           </div>
-          <Button onClick={signOut} variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+          <Button onClick={signOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800">
             Logout
           </Button>
         </div>
 
         {/* Balance Card */}
-        <Card className="bg-gray-800/90 border-gray-700 backdrop-blur-sm mb-8">
+        <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-8">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Wallet className="w-5 h-5 mr-2" />
@@ -192,48 +192,48 @@ const UserDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold text-orange-400 mb-2">
+            <div className="text-4xl font-bold text-green-400 mb-2">
               {balance.toFixed(8)} BTC
             </div>
-            <p className="text-gray-300">Available for withdrawal</p>
+            <p className="text-green-300">Available for withdrawal</p>
           </CardContent>
         </Card>
 
         <Tabs defaultValue="deposit" className="w-full">
-          <TabsList className="bg-gray-800 border-gray-700">
-            <TabsTrigger value="deposit" className="text-gray-300 data-[state=active]:bg-orange-600 data-[state=active]:text-white">
+          <TabsList className="bg-black border-green-700">
+            <TabsTrigger value="deposit" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
               <ArrowDownLeft className="w-4 h-4 mr-2" />
               Deposit
             </TabsTrigger>
-            <TabsTrigger value="withdraw" className="text-gray-300 data-[state=active]:bg-orange-600 data-[state=active]:text-white">
+            <TabsTrigger value="withdraw" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
               <ArrowUpRight className="w-4 h-4 mr-2" />
               Withdraw
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-gray-300 data-[state=active]:bg-orange-600 data-[state=active]:text-white">
+            <TabsTrigger value="history" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
               History
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="deposit" className="space-y-4">
-            <Card className="bg-gray-800/90 border-gray-700 backdrop-blur-sm">
+            <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white">Deposit Bitcoin</CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-green-300">
                   Send Bitcoin to the address below to add funds to your account
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-gray-700/50 p-4 rounded-lg border border-gray-600">
-                  <Label className="text-gray-200 text-sm font-medium">Your Bitcoin Deposit Address</Label>
+                <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
+                  <Label className="text-green-200 text-sm font-medium">Your Bitcoin Deposit Address</Label>
                   <div className="flex items-center space-x-2 mt-2">
-                    <code className="flex-1 bg-gray-900 p-3 rounded text-orange-400 font-mono text-sm break-all">
+                    <code className="flex-1 bg-black p-3 rounded text-green-400 font-mono text-sm break-all">
                       {depositAddress}
                     </code>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => copyToClipboard(depositAddress)}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 shrink-0"
+                      className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
@@ -251,16 +251,16 @@ const UserDashboard = () => {
           </TabsContent>
 
           <TabsContent value="withdraw" className="space-y-4">
-            <Card className="bg-gray-800/90 border-gray-700 backdrop-blur-sm">
+            <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white">Withdraw Bitcoin</CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-green-300">
                   Request a withdrawal to your Bitcoin address
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="withdrawal-amount" className="text-gray-200">Amount (BTC)</Label>
+                  <Label htmlFor="withdrawal-amount" className="text-green-200">Amount (BTC)</Label>
                   <Input
                     id="withdrawal-amount"
                     type="number"
@@ -268,27 +268,27 @@ const UserDashboard = () => {
                     placeholder="0.00000000"
                     value={withdrawalAmount}
                     onChange={(e) => setWithdrawalAmount(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-900 border-green-600 text-white"
                   />
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-green-400">
                     Available: {balance.toFixed(8)} BTC
                   </p>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="withdrawal-address" className="text-gray-200">Bitcoin Address</Label>
+                  <Label htmlFor="withdrawal-address" className="text-green-200">Bitcoin Address</Label>
                   <Input
                     id="withdrawal-address"
                     placeholder="Enter your Bitcoin address"
                     value={withdrawalAddress}
                     onChange={(e) => setWithdrawalAddress(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white"
+                    className="bg-gray-900 border-green-600 text-white"
                   />
                 </div>
                 
                 <Button 
                   onClick={handleWithdrawal}
-                  className="w-full bg-orange-600 hover:bg-orange-700"
+                  className="w-full bg-green-600 hover:bg-green-700 text-black"
                   disabled={!withdrawalAmount || !withdrawalAddress || parseFloat(withdrawalAmount || "0") > balance}
                 >
                   Submit Withdrawal Request
@@ -305,30 +305,30 @@ const UserDashboard = () => {
           </TabsContent>
 
           <TabsContent value="history" className="space-y-4">
-            <Card className="bg-gray-800/90 border-gray-700 backdrop-blur-sm">
+            <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white">Withdrawal History</CardTitle>
-                <CardDescription className="text-gray-300">
+                <CardDescription className="text-green-300">
                   Track your withdrawal requests and their status
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {userWithdrawals.length === 0 ? (
-                  <p className="text-gray-400 text-center py-8">No withdrawal requests yet</p>
+                  <p className="text-green-400 text-center py-8">No withdrawal requests yet</p>
                 ) : (
                   <div className="space-y-4">
                     {userWithdrawals.map((request) => (
-                      <div key={request.id} className="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                      <div key={request.id} className="p-4 bg-gray-900/50 rounded-lg border border-green-600">
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <p className="text-white font-semibold">{Number(request.amount).toFixed(8)} BTC</p>
-                            <p className="text-gray-300 text-sm">{new Date(request.created_at).toLocaleString()}</p>
+                            <p className="text-green-300 text-sm">{new Date(request.created_at).toLocaleString()}</p>
                           </div>
                           <Badge className={`${getStatusColor(request.status)} text-white capitalize`}>
                             {request.status}
                           </Badge>
                         </div>
-                        <p className="text-gray-400 text-xs break-all">
+                        <p className="text-green-400 text-xs break-all">
                           To: {request.btc_address}
                         </p>
                       </div>
