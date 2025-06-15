@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -408,7 +407,7 @@ const AdminDashboard = () => {
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Badge variant="outline" className="text-green-400 border-green-400">
-                                {getUserEmail(request)}
+                                {getUserDisplayName(request)}
                               </Badge>
                               <Badge variant="secondary" className="bg-yellow-600 text-white">
                                 Pending
