@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -121,6 +122,14 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error loading user balances:', error);
     }
+  };
+
+  const getUserDisplayName = (user: UserBalance | WithdrawalRequest) => {
+    if (user.profiles?.email) {
+      return user.profiles.email;
+    }
+    // Fallback: try to get email from auth.users table
+    return `User ID: ${user.user_id.substring(0, 8)}...`;
   };
 
   const handleWithdrawalAction = async (requestId: string, action: 'approve' | 'reject') => {
@@ -392,7 +401,7 @@ const AdminDashboard = () => {
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <Badge variant="outline" className="text-green-400 border-green-400">
-                                {request.profiles?.email || 'Unknown User'}
+                                {getUserDisplayName(request)}
                               </Badge>
                               <Badge variant="secondary" className="bg-yellow-600 text-white">
                                 Pending
@@ -452,12 +461,12 @@ const AdminDashboard = () => {
                           id="user-select"
                           value={selectedUser}
                           onChange={(e) => setSelectedUser(e.target.value)}
-                          className="w-full mt-1 p-2 bg-gray-900 border-green-600 text-white rounded-md"
+                          className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
                           <option value="">Select a user</option>
                           {userBalances.map((user) => (
                             <option key={user.user_id} value={user.user_id}>
-                              {user.profiles?.email || 'Unknown User'} (Balance: {Number(user.balance).toFixed(8)} BTC)
+                              {getUserDisplayName(user)} (Balance: {Number(user.balance).toFixed(8)} BTC)
                             </option>
                           ))}
                         </select>
@@ -469,7 +478,7 @@ const AdminDashboard = () => {
                           id="operation-select"
                           value={operation}
                           onChange={(e) => setOperation(e.target.value as 'add' | 'subtract')}
-                          className="w-full mt-1 p-2 bg-gray-900 border-green-600 text-white rounded-md"
+                          className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
                           <option value="add">Add to Balance</option>
                           <option value="subtract">Subtract from Balance</option>
@@ -485,7 +494,7 @@ const AdminDashboard = () => {
                           placeholder="0.00000000"
                           value={balanceAmount}
                           onChange={(e) => setBalanceAmount(e.target.value)}
-                          className="bg-gray-900 border-green-600 text-white"
+                          className="bg-gray-900 border-green-600 text-white placeholder-green-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
                       </div>
                       
@@ -506,7 +515,7 @@ const AdminDashboard = () => {
                         <div key={user.user_id} className="p-3 bg-gray-900/50 rounded-lg border border-green-700">
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="text-white font-medium block">{user.profiles?.email || 'Unknown User'}</span>
+                              <span className="text-white font-medium block">{getUserDisplayName(user)}</span>
                               <span className="text-green-400 text-sm">{user.profiles?.username || 'No username'}</span>
                             </div>
                             <div className="text-right">
