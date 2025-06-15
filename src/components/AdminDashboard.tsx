@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -124,13 +125,16 @@ const AdminDashboard = () => {
     }
   };
 
-  const getUserEmail = (user: UserBalance | WithdrawalRequest) => {
-    return user.profiles?.email || 'No email available';
+  const getUserDisplayName = (user: UserBalance | WithdrawalRequest) => {
+    if (user.profiles?.email) {
+      return user.profiles.email;
+    }
+    return `User ID: ${user.user_id.slice(0, 8)}...`;
   };
 
-  const getSelectedUserEmail = () => {
+  const getSelectedUserDisplayName = () => {
     const user = userBalances.find(u => u.user_id === selectedUser);
-    return user ? getUserEmail(user) : '';
+    return user ? getUserDisplayName(user) : '';
   };
 
   const handleWithdrawalAction = async (requestId: string, action: 'approve' | 'reject') => {
@@ -229,10 +233,10 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      const userEmail = getSelectedUserEmail();
+      const userDisplayName = getSelectedUserDisplayName();
       toast({
         title: "Balance Updated",
-        description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} BTC ${operation === 'add' ? 'to' : 'from'} ${userEmail}'s balance.`,
+        description: `Successfully ${operation === 'add' ? 'added' : 'subtracted'} ${amount} BTC ${operation === 'add' ? 'to' : 'from'} ${userDisplayName}'s balance.`,
       });
 
       setBalanceAmount("");
@@ -459,24 +463,22 @@ const AdminDashboard = () => {
                     <h3 className="text-lg font-semibold text-white">Update Balance</h3>
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="user-select" className="text-green-200">Select User by Email</Label>
+                        <Label htmlFor="user-select" className="text-green-200">Select User</Label>
                         <select
                           id="user-select"
                           value={selectedUser}
                           onChange={(e) => setSelectedUser(e.target.value)}
                           className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
-                          <option value="">Select a user by email</option>
-                          {userBalances
-                            .filter(user => user.profiles?.email) // Only show users with emails
-                            .map((user) => (
+                          <option value="">Select a user</option>
+                          {userBalances.map((user) => (
                             <option key={user.user_id} value={user.user_id}>
-                              {user.profiles?.email} (Balance: {Number(user.balance).toFixed(8)} BTC)
+                              {getUserDisplayName(user)} (Balance: {Number(user.balance).toFixed(8)} BTC)
                             </option>
                           ))}
                         </select>
-                        {userBalances.filter(user => user.profiles?.email).length === 0 && (
-                          <p className="text-yellow-400 text-sm mt-1">No users with email addresses found</p>
+                        {userBalances.length === 0 && (
+                          <p className="text-yellow-400 text-sm mt-1">No users found</p>
                         )}
                       </div>
                       
@@ -509,7 +511,7 @@ const AdminDashboard = () => {
                       {selectedUser && (
                         <div className="p-3 bg-green-900/20 border border-green-600 rounded-md">
                           <p className="text-green-200 text-sm">Selected user:</p>
-                          <p className="text-white font-medium">{getSelectedUserEmail()}</p>
+                          <p className="text-white font-medium">{getSelectedUserDisplayName()}</p>
                         </div>
                       )}
                       
@@ -531,7 +533,7 @@ const AdminDashboard = () => {
                         <div key={user.user_id} className="p-3 bg-gray-900/50 rounded-lg border border-green-700">
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="text-white font-medium block">{getUserEmail(user)}</span>
+                              <span className="text-white font-medium block">{getUserDisplayName(user)}</span>
                               <span className="text-green-400 text-sm">{user.profiles?.username || 'No username'}</span>
                             </div>
                             <div className="text-right">
