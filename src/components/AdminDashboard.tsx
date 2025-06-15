@@ -152,6 +152,10 @@ const AdminDashboard = () => {
     return user ? getUserDisplayName(user) : '';
   };
 
+  const getSelectedUser = () => {
+    return userBalances.find(u => u.user_id === selectedUser);
+  };
+
   const handleWithdrawalAction = async (requestId: string, action: 'approve' | 'reject') => {
     try {
       if (action === 'approve') {
@@ -552,10 +556,36 @@ const AdminDashboard = () => {
                         />
                       </div>
                       
-                      {selectedUser && (
-                        <div className="p-3 bg-green-900/20 border border-green-600 rounded-md">
-                          <p className="text-green-200 text-sm">Selected user:</p>
-                          <p className="text-white font-medium">{getSelectedUserDisplayName()}</p>
+                      {selectedUser && getSelectedUser() && (
+                        <div className="p-4 bg-green-900/20 border border-green-600 rounded-md space-y-3">
+                          <div>
+                            <p className="text-green-200 text-sm font-medium">Selected user:</p>
+                            <p className="text-white font-medium">{getSelectedUserDisplayName()}</p>
+                          </div>
+                          
+                          {/* Full User ID display */}
+                          <div className="bg-gray-800/50 p-3 rounded border border-green-600">
+                            <Label className="text-green-200 text-xs font-medium block mb-2">Full User ID</Label>
+                            <div className="flex items-center space-x-2">
+                              <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-sm break-all">
+                                {selectedUser}
+                              </code>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => copyToClipboard(selectedUser)}
+                                className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                              >
+                                <Copy className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <p className="text-green-300 text-sm">
+                              Current Balance: {Number(getSelectedUser()?.balance || 0).toFixed(8)} BTC
+                            </p>
+                          </div>
                         </div>
                       )}
                       
