@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User } from "lucide-react";
+import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User, QrCode } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import QRCode from "qrcode.react";
 
 interface WithdrawalRequest {
   id: string;
@@ -24,10 +25,11 @@ const UserDashboard = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [withdrawalAddress, setWithdrawalAddress] = useState("");
   const [userWithdrawals, setUserWithdrawals] = useState<WithdrawalRequest[]>([]);
+  const [showQR, setShowQR] = useState(false);
   const { toast } = useToast();
 
-  // Demo BTC address for deposits
-  const depositAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  // Updated BTC address for deposits
+  const depositAddress = "bc1qmz4qffv2um3y5uhwxnt40dqs2qa6x9j6vy9m04";
 
   useEffect(() => {
     if (user) {
@@ -252,6 +254,17 @@ const UserDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* QR Code Section */}
+                <div className="flex justify-center mb-6">
+                  <div className="bg-white p-4 rounded-lg">
+                    <QRCode 
+                      value={depositAddress} 
+                      size={200}
+                      level="M"
+                    />
+                  </div>
+                </div>
+
                 <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
                   <Label className="text-green-200 text-sm font-medium">Your Bitcoin Deposit Address</Label>
                   <div className="flex items-center space-x-2 mt-2">
@@ -274,7 +287,8 @@ const UserDashboard = () => {
                     <strong>Deposit Process:</strong>
                   </p>
                   <ol className="text-blue-200 text-sm mt-2 list-decimal list-inside space-y-1">
-                    <li>Send Bitcoin to the address above</li>
+                    <li>Scan the QR code above or copy the Bitcoin address</li>
+                    <li>Send Bitcoin to this address from your wallet</li>
                     <li>Copy your User ID from the card above</li>
                     <li>Email the admin with your User ID and deposit details</li>
                     <li>Wait for admin confirmation and balance update</li>
