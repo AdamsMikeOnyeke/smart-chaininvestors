@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Wallet, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -77,7 +76,7 @@ const UserDashboard = () => {
       await navigator.clipboard.writeText(text);
       toast({
         title: "Copied!",
-        description: "Bitcoin address copied to clipboard.",
+        description: "Text copied to clipboard.",
       });
     } catch (err) {
       toast({
@@ -183,6 +182,36 @@ const UserDashboard = () => {
           </Button>
         </div>
 
+        {/* User ID Card */}
+        <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-4">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <User className="w-5 h-5 mr-2" />
+              Your User ID
+            </CardTitle>
+            <CardDescription className="text-green-300">
+              Share this ID with the admin when making deposits
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
+              <div className="flex items-center space-x-2">
+                <code className="flex-1 bg-black p-3 rounded text-green-400 font-mono text-sm break-all">
+                  {user?.id}
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyToClipboard(user?.id || "")}
+                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Balance Card */}
         <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-8">
           <CardHeader>
@@ -219,7 +248,7 @@ const UserDashboard = () => {
               <CardHeader>
                 <CardTitle className="text-white">Deposit Bitcoin</CardTitle>
                 <CardDescription className="text-green-300">
-                  Send Bitcoin to the address below to add funds to your account
+                  Send Bitcoin to the address below, then email the admin with your User ID
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -240,10 +269,22 @@ const UserDashboard = () => {
                   </div>
                 </div>
                 
+                <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4">
+                  <p className="text-blue-200 text-sm">
+                    <strong>Deposit Process:</strong>
+                  </p>
+                  <ol className="text-blue-200 text-sm mt-2 list-decimal list-inside space-y-1">
+                    <li>Send Bitcoin to the address above</li>
+                    <li>Copy your User ID from the card above</li>
+                    <li>Email the admin with your User ID and deposit details</li>
+                    <li>Wait for admin confirmation and balance update</li>
+                  </ol>
+                </div>
+                
                 <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4">
                   <p className="text-yellow-200 text-sm">
                     <strong>Important:</strong> Only send Bitcoin (BTC) to this address. 
-                    Deposits are processed manually by our admin team. Please allow time for confirmation.
+                    Always include your User ID when contacting the admin about deposits.
                   </p>
                 </div>
               </CardContent>
