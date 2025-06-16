@@ -22,9 +22,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('Setting up auth state listener...');
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -33,70 +36,121 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('Cleaning up auth subscription');
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: username
+    try {
+      console.log('Attempting sign up for:', email);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: username
+          },
+          emailRedirectTo: `${window.location.origin}/auth`
         }
-      }
-    });
+      });
 
-    if (error) {
+      if (error) {
+        console.error('Sign up error:', error);
+        toast({
+          title: "Sign Up Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log('Sign up successful');
+        toast({
+          title: "Account Created",
+          description: "Your account has been successfully created. You can now sign in.",
+        });
+      }
+
+      return { error };
+    } catch (err) {
+      console.error('Sign up exception:', err);
+      const error = err as Error;
       toast({
         title: "Sign Up Failed",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Account Created",
-        description: "Your account has been successfully created. You can now sign in.",
-      });
+      return { error };
     }
-
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      console.log('Attempting sign in for:', email);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
+      if (error) {
+        console.error('Sign in error:', error);
+        toast({
+          title: "Sign In Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log('Sign in successful');
+      }
+
+      return { error };
+    } catch (err) {
+      console.error('Sign in exception:', err);
+      const error = err as Error;
       toast({
         title: "Sign In Failed",
         description: error.message,
         variant: "destructive",
       });
+      return { error };
     }
-
-    return { error };
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      console.log('Attempting sign out...');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast({
+          title: "Sign Out Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log('Sign out successful');
+        // Clear local state immediately
+        setUser(null);
+        setSession(null);
+        toast({
+          title: "Signed Out",
+          description: "You have been successfully signed out.",
+        });
+      }
+    } catch (err) {
+      console.error('Sign out exception:', err);
+      const error = err as Error;
       toast({
         title: "Sign Out Failed",
         description: error.message,
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Signed Out",
-        description: "You have been successfully signed out.",
       });
     }
   };
@@ -109,6 +163,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     loading,
   };
+
+  console.log('AuthContext rendering with user:', user?.email, 'loading:', loading);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

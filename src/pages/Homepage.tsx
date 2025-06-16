@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -151,15 +150,12 @@ const Homepage = () => {
             <p className="text-xl md:text-2xl text-green-200 mb-8 max-w-2xl mx-auto">
               Join thousands of investors who trust Smartchaininvestors for secure, profitable Bitcoin trading with guaranteed returns.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Link to="/auth">
                 <Button className="bg-green-600 hover:bg-green-700 text-black text-lg px-8 py-3">
                   Start Trading Now
                 </Button>
               </Link>
-              <Button variant="outline" className="border-green-600 text-green-300 hover:bg-green-600 hover:text-black text-lg px-8 py-3">
-                Learn More
-              </Button>
             </div>
           </div>
           

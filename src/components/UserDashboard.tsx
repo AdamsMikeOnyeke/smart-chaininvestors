@@ -35,6 +35,7 @@ const UserDashboard = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('User logged in, loading dashboard data for:', user.email);
       loadUserBalance();
       loadUserWithdrawals();
     }
@@ -42,36 +43,50 @@ const UserDashboard = () => {
 
   const loadUserBalance = async () => {
     try {
+      console.log('Loading user balance...');
       const { data, error } = await supabase
         .from('user_balances')
         .select('balance')
         .eq('user_id', user?.id)
         .single();
 
-      if (error) throw error;
-      setBalance(Number(data.balance) || 0);
+      if (error) {
+        console.error('Error loading balance:', error);
+        // Don't throw error, just log it - user might not have a balance record yet
+        return;
+      }
+      
+      const balanceValue = Number(data?.balance) || 0;
+      console.log('User balance loaded:', balanceValue);
+      setBalance(balanceValue);
     } catch (error) {
-      console.error('Error loading balance:', error);
+      console.error('Exception loading balance:', error);
     }
   };
 
   const loadUserWithdrawals = async () => {
     try {
+      console.log('Loading user withdrawals...');
       const { data, error } = await supabase
         .from('withdrawal_requests')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading withdrawals:', error);
+        return;
+      }
+      
       // Cast the status to the correct type
       const typedData = (data || []).map(request => ({
         ...request,
         status: request.status as 'pending' | 'approved' | 'rejected'
       }));
+      console.log('User withdrawals loaded:', typedData.length);
       setUserWithdrawals(typedData);
     } catch (error) {
-      console.error('Error loading withdrawals:', error);
+      console.error('Exception loading withdrawals:', error);
     }
   };
 
@@ -122,6 +137,7 @@ const UserDashboard = () => {
     }
 
     try {
+      console.log('Submitting withdrawal request...');
       const { error } = await supabase
         .from('withdrawal_requests')
         .insert({
@@ -142,12 +158,18 @@ const UserDashboard = () => {
       setWithdrawalAddress("");
       loadUserWithdrawals();
     } catch (error) {
+      console.error('Error submitting withdrawal:', error);
       toast({
         title: "Error",
         description: "Failed to submit withdrawal request.",
         variant: "destructive",
       });
     }
+  };
+
+  const handleSignOut = async () => {
+    console.log('User clicked sign out');
+    await signOut();
   };
 
   const getStatusColor = (status: string) => {
@@ -165,6 +187,15 @@ const UserDashboard = () => {
 
   const username = user?.user_metadata?.username || user?.email || 'User';
 
+  // Show loading state if user is not loaded yet
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading user data...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 p-4">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxMGIxMDQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
@@ -181,7 +212,7 @@ const UserDashboard = () => {
               <p className="text-green-300">Manage your Bitcoin portfolio</p>
             </div>
           </div>
-          <Button onClick={signOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800">
+          <Button onClick={handleSignOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800">
             Logout
           </Button>
         </div>
