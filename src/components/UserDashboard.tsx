@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User, QrCode } from "lucide-react";
+import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User, QrCode, BarChart3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { QRCodeSVG } from "qrcode.react";
+import BitcoinChart from "./BitcoinChart";
 
 interface WithdrawalRequest {
   id: string;
@@ -167,7 +169,7 @@ const UserDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 p-4">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxMGIxMDQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
       
-      <div className="relative z-10 max-w-4xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-3">
@@ -182,6 +184,11 @@ const UserDashboard = () => {
           <Button onClick={signOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800">
             Logout
           </Button>
+        </div>
+
+        {/* Bitcoin Chart Section */}
+        <div className="mb-8">
+          <BitcoinChart />
         </div>
 
         {/* User ID Card */}

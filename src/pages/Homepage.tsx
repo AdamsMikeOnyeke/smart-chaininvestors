@@ -163,11 +163,11 @@ const Homepage = () => {
             </div>
           </div>
           
-          {/* Hero Image */}
+          {/* Hero Image - Updated to Bitcoin-related */}
           <div className="mt-16 relative">
             <img 
-              src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" 
-              alt="Bitcoin Trading Technology" 
+              src="https://images.unsplash.com/photo-1640161704729-cbe966a08476?auto=format&fit=crop&w=1200&q=80" 
+              alt="Bitcoin Trading and Cryptocurrency Investment" 
               className="rounded-lg shadow-2xl mx-auto max-w-4xl w-full opacity-80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg"></div>
