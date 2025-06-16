@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Check, X, User, Wallet, TrendingUp, DollarSign, Copy } from "lucide-react";
+import { Check, X, User, Wallet, TrendingUp, Copy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import BitcoinChart from "./BitcoinChart";
 
 interface WithdrawalRequest {
   id: string;
@@ -37,11 +37,6 @@ interface BitcoinPrice {
   usd: number;
 }
 
-interface PriceHistory {
-  timestamp: number;
-  price: number;
-}
-
 const AdminDashboard = () => {
   const { signOut } = useAuth();
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
@@ -50,14 +45,12 @@ const AdminDashboard = () => {
   const [balanceAmount, setBalanceAmount] = useState("");
   const [operation, setOperation] = useState<'add' | 'subtract'>('add');
   const [btcPrice, setBtcPrice] = useState<number>(0);
-  const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     loadWithdrawalRequests();
     loadUserBalances();
     fetchBtcPrice();
-    fetchPriceHistory();
   }, []);
 
   const fetchBtcPrice = async () => {
@@ -67,20 +60,6 @@ const AdminDashboard = () => {
       setBtcPrice(data.bitcoin.usd);
     } catch (error) {
       console.error('Error fetching BTC price:', error);
-    }
-  };
-
-  const fetchPriceHistory = async () => {
-    try {
-      const response = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7&interval=daily');
-      const data = await response.json();
-      const history = data.prices.map(([timestamp, price]: [number, number]) => ({
-        timestamp,
-        price: Math.round(price)
-      }));
-      setPriceHistory(history);
-    } catch (error) {
-      console.error('Error fetching price history:', error);
     }
   };
 
@@ -270,10 +249,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString();
-  };
-
   const formatUsdValue = (btcAmount: number) => {
     return (btcAmount * btcPrice).toLocaleString('en-US', {
       style: 'currency',
@@ -357,46 +332,10 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* BTC Price Chart */}
-        <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-8">
-          <CardHeader>
-            <CardTitle className="text-white">BTC/USD Price Chart (7 Days)</CardTitle>
-            <CardDescription className="text-green-300">
-              Bitcoin price trend over the last week
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={priceHistory}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#065f46" />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    tickFormatter={formatDate}
-                    stroke="#10b981"
-                  />
-                  <YAxis stroke="#10b981" />
-                  <Tooltip 
-                    labelFormatter={(value) => formatDate(Number(value))}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Price']}
-                    contentStyle={{ 
-                      backgroundColor: '#000', 
-                      border: '1px solid #10b981',
-                      color: '#fff'
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="price" 
-                    stroke="#10b981" 
-                    strokeWidth={2}
-                    dot={{ fill: '#10b981', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Bitcoin Chart Section */}
+        <div className="mb-8">
+          <BitcoinChart />
+        </div>
 
         <Tabs defaultValue="withdrawals" className="w-full">
           <TabsList className="bg-black border-green-700">
