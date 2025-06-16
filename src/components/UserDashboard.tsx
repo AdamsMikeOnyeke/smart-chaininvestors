@@ -281,6 +281,24 @@ const UserDashboard = () => {
                     </Button>
                   </div>
                 </div>
+
+                {/* Admin Email Section */}
+                <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
+                  <Label className="text-green-200 text-sm font-medium">Admin Email for Deposits</Label>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <code className="flex-1 bg-black p-3 rounded text-green-400 font-mono text-sm break-all">
+                      Smartchaininvestors@gmail.com
+                    </code>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => copyToClipboard("Smartchaininvestors@gmail.com")}
+                      className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
                 
                 <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4">
                   <p className="text-blue-200 text-sm">
@@ -290,7 +308,7 @@ const UserDashboard = () => {
                     <li>Scan the QR code above or copy the Bitcoin address</li>
                     <li>Send Bitcoin to this address from your wallet</li>
                     <li>Copy your User ID from the card above</li>
-                    <li>Email the admin with your User ID and deposit details</li>
+                    <li>Email <strong>Smartchaininvestors@gmail.com</strong> with your User ID and deposit details</li>
                     <li>Wait for admin confirmation and balance update</li>
                   </ol>
                 </div>

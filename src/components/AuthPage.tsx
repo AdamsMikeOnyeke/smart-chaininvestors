@@ -40,7 +40,7 @@ const AuthPage = () => {
               <span className="text-black font-bold text-xl">₿</span>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-white">CryptoBroker</CardTitle>
+          <CardTitle className="text-2xl font-bold text-white">Smartchaininvestors</CardTitle>
           <CardDescription className="text-green-300">
             Secure Bitcoin Trading Platform
           </CardDescription>

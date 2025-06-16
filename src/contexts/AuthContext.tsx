@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
         data: {
           username: username
         }
@@ -61,8 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     } else {
       toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link.",
+        title: "Account Created",
+        description: "Your account has been successfully created. You can now sign in.",
       });
     }
 
