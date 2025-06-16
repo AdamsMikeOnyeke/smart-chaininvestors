@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -7,6 +8,7 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 interface PriceData {
   time: string;
   price: number;
+  timestamp: number;
 }
 
 const BitcoinChart = () => {
@@ -15,62 +17,49 @@ const BitcoinChart = () => {
   const [priceChange, setPriceChange] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
-  // Generate mock Bitcoin price data with realistic fluctuations
-  const generateMockData = () => {
-    const now = new Date();
-    const data: PriceData[] = [];
-    let basePrice = 45000 + Math.random() * 20000; // Random starting price between 45k-65k
-    
-    for (let i = 23; i >= 0; i--) {
-      const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-      const fluctuation = (Math.random() - 0.5) * 2000; // ±$1000 fluctuation
-      basePrice += fluctuation;
-      basePrice = Math.max(30000, Math.min(80000, basePrice)); // Keep within realistic bounds
+  // Fetch real Bitcoin price data from CoinGecko API
+  const fetchRealBitcoinData = async () => {
+    try {
+      // Fetch current price
+      const currentResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+      const currentData = await currentResponse.json();
       
-      data.push({
-        time: time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        price: Math.round(basePrice)
-      });
+      // Fetch 24-hour price history
+      const historyResponse = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=hourly');
+      const historyData = await historyResponse.json();
+      
+      const prices = historyData.prices || [];
+      const formattedData: PriceData[] = prices.map(([timestamp, price]: [number, number]) => ({
+        time: new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        price: Math.round(price),
+        timestamp
+      }));
+
+      setPriceData(formattedData);
+      
+      const latestPrice = currentData.bitcoin.usd;
+      setCurrentPrice(latestPrice);
+      
+      // Calculate 24h change
+      const change24h = currentData.bitcoin.usd_24h_change || 0;
+      const changeAmount = (latestPrice * change24h) / 100;
+      setPriceChange(changeAmount);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching Bitcoin data:', error);
+      setLoading(false);
     }
-    
-    return data;
   };
 
   useEffect(() => {
     // Initial data load
-    const initialData = generateMockData();
-    setPriceData(initialData);
-    setCurrentPrice(initialData[initialData.length - 1].price);
-    
-    if (initialData.length >= 2) {
-      const change = initialData[initialData.length - 1].price - initialData[initialData.length - 2].price;
-      setPriceChange(change);
-    }
-    
-    setLoading(false);
+    fetchRealBitcoinData();
 
-    // Update data every 30 seconds with new price point
+    // Update data every 5 minutes
     const interval = setInterval(() => {
-      setPriceData(prevData => {
-        const lastPrice = prevData[prevData.length - 1].price;
-        const fluctuation = (Math.random() - 0.5) * 1500; // ±$750 fluctuation
-        const newPrice = Math.max(30000, Math.min(80000, lastPrice + fluctuation));
-        const now = new Date();
-        
-        const newDataPoint = {
-          time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-          price: Math.round(newPrice)
-        };
-        
-        // Keep only last 24 data points (24 hours)
-        const updatedData = [...prevData.slice(1), newDataPoint];
-        
-        setCurrentPrice(newPrice);
-        setPriceChange(newPrice - lastPrice);
-        
-        return updatedData;
-      });
-    }, 30000); // Update every 30 seconds
+      fetchRealBitcoinData();
+    }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
   }, []);
@@ -87,7 +76,7 @@ const BitcoinChart = () => {
       <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-white">Bitcoin Live Chart</CardTitle>
-          <CardDescription className="text-green-300">Loading price data...</CardDescription>
+          <CardDescription className="text-green-300">Loading real price data...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center">
@@ -110,7 +99,7 @@ const BitcoinChart = () => {
               <TrendingDown className="w-5 h-5 text-red-400" />
             )}
             <span className={`text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}
+              {priceChange >= 0 ? '+' : ''}${Math.abs(priceChange).toFixed(2)}
             </span>
           </div>
         </CardTitle>
@@ -153,7 +142,7 @@ const BitcoinChart = () => {
           </ResponsiveContainer>
         </ChartContainer>
         <div className="mt-4 text-xs text-green-400 text-center">
-          * Simulated data for demonstration purposes
+          * Real Bitcoin price data from CoinGecko API
         </div>
       </CardContent>
     </Card>
