@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { Check, X, User, Wallet, TrendingUp, Copy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -261,97 +263,99 @@ const AdminDashboard = () => {
   const totalPendingAmount = pendingRequests.reduce((sum, req) => sum + Number(req.amount), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 overflow-x-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxMGIxMDQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
       
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-10 max-w-7xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 sm:mb-8 gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-black font-bold">₿</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+              <span className="text-black font-bold text-sm sm:text-base">₿</span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-              <p className="text-green-300">Manage withdrawals and user balances</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-green-300 text-sm sm:text-base">Manage withdrawals and user balances</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-right">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
+            <div className="text-left sm:text-right">
               <p className="text-green-400 text-sm">BTC/USD</p>
-              <p className="text-white text-xl font-bold">${btcPrice.toLocaleString()}</p>
+              <p className="text-white text-lg sm:text-xl font-bold">${btcPrice.toLocaleString()}</p>
             </div>
-            <Button onClick={signOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800">
+            <Button onClick={signOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800 w-full sm:w-auto">
               Logout
             </Button>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-200">Total Users</CardTitle>
-              <User className="h-4 w-4 text-green-500" />
+              <CardTitle className="text-xs sm:text-sm font-medium text-green-200">Total Users</CardTitle>
+              <User className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{totalUsers}</div>
+              <div className="text-lg sm:text-2xl font-bold text-white">{totalUsers}</div>
             </CardContent>
           </Card>
           
           <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-200">Pending Requests</CardTitle>
-              <Wallet className="h-4 w-4 text-green-500" />
+              <CardTitle className="text-xs sm:text-sm font-medium text-green-200">Pending Requests</CardTitle>
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{pendingRequests.length}</div>
+              <div className="text-lg sm:text-2xl font-bold text-white">{pendingRequests.length}</div>
             </CardContent>
           </Card>
           
           <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-200">Pending Amount</CardTitle>
-              <span className="text-green-500 font-bold">₿</span>
+              <CardTitle className="text-xs sm:text-sm font-medium text-green-200">Pending Amount</CardTitle>
+              <span className="text-green-500 font-bold text-sm">₿</span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{totalPendingAmount.toFixed(8)} BTC</div>
-              <p className="text-green-400 text-sm">{formatUsdValue(totalPendingAmount)}</p>
+              <div className="text-sm sm:text-2xl font-bold text-white">{totalPendingAmount.toFixed(8)} BTC</div>
+              <p className="text-green-400 text-xs sm:text-sm">{formatUsdValue(totalPendingAmount)}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-200">BTC Price</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-500" />
+              <CardTitle className="text-xs sm:text-sm font-medium text-green-200">BTC Price</CardTitle>
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">${btcPrice.toLocaleString()}</div>
-              <p className="text-green-400 text-sm">Live price</p>
+              <div className="text-sm sm:text-2xl font-bold text-white">${btcPrice.toLocaleString()}</div>
+              <p className="text-green-400 text-xs sm:text-sm">Live price</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Bitcoin Chart Section */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <BitcoinChart />
         </div>
 
         <Tabs defaultValue="withdrawals" className="w-full">
-          <TabsList className="bg-black border-green-700">
-            <TabsTrigger value="withdrawals" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
-              Withdrawal Requests
+          <TabsList className="bg-black border-green-700 w-full sm:w-auto grid grid-cols-2 sm:flex">
+            <TabsTrigger value="withdrawals" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black text-xs sm:text-sm">
+              <span className="hidden sm:inline">Withdrawal Requests</span>
+              <span className="sm:hidden">Withdrawals</span>
             </TabsTrigger>
-            <TabsTrigger value="balances" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
-              Manage Balances
+            <TabsTrigger value="balances" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black text-xs sm:text-sm">
+              <span className="hidden sm:inline">Manage Balances</span>
+              <span className="sm:hidden">Balances</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="withdrawals" className="space-y-4">
+          <TabsContent value="withdrawals" className="space-y-4 mt-4">
             <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">Pending Withdrawal Requests</CardTitle>
-                <CardDescription className="text-green-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-lg sm:text-xl">Pending Withdrawal Requests</CardTitle>
+                <CardDescription className="text-green-300 text-sm">
                   Review and approve/reject withdrawal requests
                 </CardDescription>
               </CardHeader>
@@ -359,103 +363,106 @@ const AdminDashboard = () => {
                 {pendingRequests.length === 0 ? (
                   <p className="text-green-400 text-center py-8">No pending withdrawal requests</p>
                 ) : (
-                  <div className="space-y-4">
-                    {pendingRequests.map((request) => (
-                      <div key={request.id} className="p-4 bg-gray-900/50 rounded-lg border border-green-700">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-3 flex-1">
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="outline" className="text-green-400 border-green-400">
-                                {getUserDisplayName(request)}
-                              </Badge>
-                              <Badge variant="secondary" className="bg-yellow-600 text-white">
-                                Pending
-                              </Badge>
-                            </div>
-                            
-                            {/* User ID with copy button */}
-                            <div className="bg-gray-800/50 p-3 rounded border border-green-600">
-                              <Label className="text-green-200 text-xs font-medium block mb-2">User ID</Label>
-                              <div className="flex items-center space-x-2">
-                                <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-sm break-all">
-                                  {request.user_id}
-                                </code>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => copyToClipboard(request.user_id)}
-                                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
-                                >
-                                  <Copy className="w-3 h-3" />
-                                </Button>
+                  <ScrollArea className="h-96 sm:h-[500px]">
+                    <div className="space-y-4 pr-4">
+                      {pendingRequests.map((request) => (
+                        <div key={request.id} className="p-3 sm:p-4 bg-gray-900/50 rounded-lg border border-green-700">
+                          <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
+                            <div className="space-y-3 flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge variant="outline" className="text-green-400 border-green-400 text-xs">
+                                  {getUserDisplayName(request)}
+                                </Badge>
+                                <Badge variant="secondary" className="bg-yellow-600 text-white text-xs">
+                                  Pending
+                                </Badge>
                               </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              
+                              {/* User ID with copy button */}
+                              <div className="bg-gray-800/50 p-2 sm:p-3 rounded border border-green-600">
+                                <Label className="text-green-200 text-xs font-medium block mb-2">User ID</Label>
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                  <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-xs break-all overflow-hidden">
+                                    {request.user_id}
+                                  </code>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => copyToClipboard(request.user_id)}
+                                    className="border-green-600 text-green-300 hover:bg-green-800 shrink-0 w-full sm:w-auto"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                  <p className="text-white font-semibold text-sm sm:text-base">Amount: {Number(request.amount).toFixed(8)} BTC</p>
+                                  <p className="text-green-400 text-xs sm:text-sm">≈ {formatUsdValue(Number(request.amount))}</p>
+                                </div>
+                                <div>
+                                  <p className="text-green-400 text-xs">
+                                    Requested: {new Date(request.created_at).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
+                              
                               <div>
-                                <p className="text-white font-semibold">Amount: {Number(request.amount).toFixed(8)} BTC</p>
-                                <p className="text-green-400 text-sm">≈ {formatUsdValue(Number(request.amount))}</p>
-                              </div>
-                              <div>
-                                <p className="text-green-400 text-xs">
-                                  Requested: {new Date(request.created_at).toLocaleString()}
-                                </p>
+                                <p className="text-green-200 text-xs font-medium">Bitcoin Address:</p>
+                                <p className="text-green-300 text-xs sm:text-sm break-all bg-gray-800/30 p-2 rounded">{request.btc_address}</p>
                               </div>
                             </div>
-                            
-                            <div>
-                              <p className="text-green-200 text-xs font-medium">Bitcoin Address:</p>
-                              <p className="text-green-300 text-sm break-all bg-gray-800/30 p-2 rounded">{request.btc_address}</p>
+                            <div className="flex flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2 w-full lg:w-auto">
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 text-black flex-1 lg:flex-none text-xs sm:text-sm"
+                                onClick={() => handleWithdrawalAction(request.id, 'approve')}
+                              >
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleWithdrawalAction(request.id, 'reject')}
+                                className="flex-1 lg:flex-none text-xs sm:text-sm"
+                              >
+                                <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                Reject
+                              </Button>
                             </div>
-                          </div>
-                          <div className="flex flex-col space-y-2 ml-4">
-                            <Button
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-black"
-                              onClick={() => handleWithdrawalAction(request.id, 'approve')}
-                            >
-                              <Check className="w-4 h-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleWithdrawalAction(request.id, 'reject')}
-                            >
-                              <X className="w-4 h-4 mr-1" />
-                              Reject
-                            </Button>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="balances" className="space-y-4">
+          <TabsContent value="balances" className="space-y-4 mt-4">
             <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">User Balances</CardTitle>
-                <CardDescription className="text-green-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-lg sm:text-xl">User Balances</CardTitle>
+                <CardDescription className="text-green-300 text-sm">
                   View and manage user BTC balances
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {/* Balance Management */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white">Update Balance</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-white">Update Balance</h3>
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="user-select" className="text-green-200">Select User</Label>
+                        <Label htmlFor="user-select" className="text-green-200 text-sm">Select User</Label>
                         <select
                           id="user-select"
                           value={selectedUser}
                           onChange={(e) => setSelectedUser(e.target.value)}
-                          className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                         >
                           <option value="">Select a user</option>
                           {userBalances.map((user) => (
@@ -470,12 +477,12 @@ const AdminDashboard = () => {
                       </div>
                       
                       <div>
-                        <Label htmlFor="operation-select" className="text-green-200">Operation</Label>
+                        <Label htmlFor="operation-select" className="text-green-200 text-sm">Operation</Label>
                         <select
                           id="operation-select"
                           value={operation}
                           onChange={(e) => setOperation(e.target.value as 'add' | 'subtract')}
-                          className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          className="w-full mt-1 p-2 bg-gray-900 border border-green-600 text-white rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                         >
                           <option value="add">Add to Balance</option>
                           <option value="subtract">Subtract from Balance</option>
@@ -483,7 +490,7 @@ const AdminDashboard = () => {
                       </div>
                       
                       <div>
-                        <Label htmlFor="balance-amount" className="text-green-200">Amount (BTC)</Label>
+                        <Label htmlFor="balance-amount" className="text-green-200 text-sm">Amount (BTC)</Label>
                         <Input
                           id="balance-amount"
                           type="number"
@@ -491,29 +498,29 @@ const AdminDashboard = () => {
                           placeholder="0.00000000"
                           value={balanceAmount}
                           onChange={(e) => setBalanceAmount(e.target.value)}
-                          className="bg-gray-900 border-green-600 text-white placeholder-green-400 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          className="bg-gray-900 border-green-600 text-white placeholder-green-400 focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
                         />
                       </div>
                       
                       {selectedUser && getSelectedUser() && (
-                        <div className="p-4 bg-green-900/20 border border-green-600 rounded-md space-y-3">
+                        <div className="p-3 sm:p-4 bg-green-900/20 border border-green-600 rounded-md space-y-3">
                           <div>
                             <p className="text-green-200 text-sm font-medium">Selected user:</p>
-                            <p className="text-white font-medium">{getSelectedUserDisplayName()}</p>
+                            <p className="text-white font-medium text-sm">{getSelectedUserDisplayName()}</p>
                           </div>
                           
                           {/* Full User ID display */}
-                          <div className="bg-gray-800/50 p-3 rounded border border-green-600">
+                          <div className="bg-gray-800/50 p-2 sm:p-3 rounded border border-green-600">
                             <Label className="text-green-200 text-xs font-medium block mb-2">Full User ID</Label>
-                            <div className="flex items-center space-x-2">
-                              <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-sm break-all">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                              <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-xs break-all overflow-hidden">
                                 {selectedUser}
                               </code>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => copyToClipboard(selectedUser)}
-                                className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                                className="border-green-600 text-green-300 hover:bg-green-800 shrink-0 w-full sm:w-auto"
                               >
                                 <Copy className="w-3 h-3" />
                               </Button>
@@ -530,7 +537,7 @@ const AdminDashboard = () => {
                       
                       <Button 
                         onClick={handleBalanceUpdate}
-                        className="w-full bg-green-600 hover:bg-green-700 text-black"
+                        className="w-full bg-green-600 hover:bg-green-700 text-black text-sm"
                         disabled={!selectedUser || !balanceAmount}
                       >
                         Update Balance
@@ -540,43 +547,45 @@ const AdminDashboard = () => {
 
                   {/* User List */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white">All Users</h3>
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                      {userBalances.map((user) => (
-                        <div key={user.user_id} className="p-4 bg-gray-900/50 rounded-lg border border-green-700">
-                          <div className="space-y-3">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <span className="text-white font-medium block">{getUserDisplayName(user)}</span>
-                                <span className="text-green-400 text-sm">{user.profiles?.username || 'No username'}</span>
+                    <h3 className="text-base sm:text-lg font-semibold text-white">All Users</h3>
+                    <ScrollArea className="h-96 sm:h-[500px]">
+                      <div className="space-y-3 pr-4">
+                        {userBalances.map((user) => (
+                          <div key={user.user_id} className="p-3 sm:p-4 bg-gray-900/50 rounded-lg border border-green-700">
+                            <div className="space-y-3">
+                              <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-white font-medium block text-sm break-words">{getUserDisplayName(user)}</span>
+                                  <span className="text-green-400 text-xs">{user.profiles?.username || 'No username'}</span>
+                                </div>
+                                <div className="text-left sm:text-right">
+                                  <span className="text-green-400 font-bold block text-sm">{Number(user.balance).toFixed(8)} BTC</span>
+                                  <span className="text-green-300 text-xs">{formatUsdValue(Number(user.balance))}</span>
+                                </div>
                               </div>
-                              <div className="text-right">
-                                <span className="text-green-400 font-bold block">{Number(user.balance).toFixed(8)} BTC</span>
-                                <span className="text-green-300 text-sm">{formatUsdValue(Number(user.balance))}</span>
-                              </div>
-                            </div>
-                            
-                            {/* User ID display */}
-                            <div className="bg-gray-800/50 p-3 rounded border border-green-600">
-                              <Label className="text-green-200 text-xs font-medium block mb-2">User ID</Label>
-                              <div className="flex items-center space-x-2">
-                                <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-xs break-all">
-                                  {user.user_id}
-                                </code>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => copyToClipboard(user.user_id)}
-                                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
-                                >
-                                  <Copy className="w-3 h-3" />
-                                </Button>
+                              
+                              {/* User ID display */}
+                              <div className="bg-gray-800/50 p-2 sm:p-3 rounded border border-green-600">
+                                <Label className="text-green-200 text-xs font-medium block mb-2">User ID</Label>
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                  <code className="flex-1 bg-black p-2 rounded text-green-400 font-mono text-xs break-all overflow-hidden">
+                                    {user.user_id}
+                                  </code>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => copyToClipboard(user.user_id)}
+                                    className="border-green-600 text-green-300 hover:bg-green-800 shrink-0 w-full sm:w-auto"
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
                   </div>
                 </div>
               </CardContent>

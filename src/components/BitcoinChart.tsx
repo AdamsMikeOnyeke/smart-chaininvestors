@@ -113,13 +113,13 @@ const BitcoinChart = () => {
 
   if (loading) {
     return (
-      <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-white">Bitcoin Live Chart</CardTitle>
-          <CardDescription className="text-green-300">Loading real price data...</CardDescription>
+      <Card className="bg-black/90 border-green-700 backdrop-blur-sm w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-lg sm:text-xl">Bitcoin Live Chart</CardTitle>
+          <CardDescription className="text-green-300 text-sm">Loading real price data...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center">
+          <div className="h-48 sm:h-64 flex items-center justify-center">
             <div className="text-green-400">Loading chart...</div>
           </div>
         </CardContent>
@@ -129,14 +129,14 @@ const BitcoinChart = () => {
 
   if (error) {
     return (
-      <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-white">Bitcoin Live Chart</CardTitle>
-          <CardDescription className="text-red-300">{error}</CardDescription>
+      <Card className="bg-black/90 border-green-700 backdrop-blur-sm w-full">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-lg sm:text-xl">Bitcoin Live Chart</CardTitle>
+          <CardDescription className="text-red-300 text-sm">{error}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center">
-            <div className="text-red-400">Failed to load chart data</div>
+          <div className="h-48 sm:h-64 flex items-center justify-center">
+            <div className="text-red-400 text-center px-4">Failed to load chart data</div>
           </div>
         </CardContent>
       </Card>
@@ -144,42 +144,48 @@ const BitcoinChart = () => {
   }
 
   return (
-    <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center justify-between">
-          <span>Bitcoin Live Chart</span>
+    <Card className="bg-black/90 border-green-700 backdrop-blur-sm w-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="text-lg sm:text-xl">Bitcoin Live Chart</span>
           <div className="flex items-center space-x-2">
             {priceChange >= 0 ? (
-              <TrendingUp className="w-5 h-5 text-green-400" />
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
             ) : (
-              <TrendingDown className="w-5 h-5 text-red-400" />
+              <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
             )}
-            <span className={`text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`text-xs sm:text-sm ${priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {priceChange >= 0 ? '+' : ''}${Math.abs(priceChange).toFixed(2)}
             </span>
           </div>
         </CardTitle>
         <CardDescription className="text-green-300">
-          <span className="text-2xl font-bold text-white">${currentPrice.toLocaleString()}</span>
-          <span className="ml-2">Last 24 hours</span>
+          <span className="text-xl sm:text-2xl font-bold text-white block sm:inline">${currentPrice.toLocaleString()}</span>
+          <span className="ml-0 sm:ml-2 text-sm">Last 24 hours</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-64">
+        <ChartContainer config={chartConfig} className="h-48 sm:h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={priceData}>
+            <LineChart data={priceData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
               <XAxis 
                 dataKey="time" 
                 stroke="#10b981"
-                fontSize={12}
+                fontSize={10}
                 tickLine={false}
+                axisLine={false}
+                interval="preserveStartEnd"
+                tick={{ fontSize: 10 }}
               />
               <YAxis 
                 stroke="#10b981"
-                fontSize={12}
+                fontSize={10}
                 tickLine={false}
+                axisLine={false}
+                width={60}
                 domain={['dataMin - 1000', 'dataMax + 1000']}
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                tick={{ fontSize: 10 }}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent 
@@ -192,12 +198,12 @@ const BitcoinChart = () => {
                 stroke="#10b981"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4, fill: "#10b981" }}
+                activeDot={{ r: 3, fill: "#10b981" }}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
-        <div className="mt-4 text-xs text-green-400 text-center">
+        <div className="mt-3 text-xs text-green-400 text-center px-2">
           * Real Bitcoin price data from CoinGecko API • Updates every 2 minutes
         </div>
       </CardContent>

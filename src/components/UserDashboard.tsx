@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User, QrCode, BarChart3 } from "lucide-react";
+import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { QRCodeSVG } from "qrcode.react";
@@ -190,60 +190,60 @@ const UserDashboard = () => {
   // Show loading state if user is not loaded yet
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 flex items-center justify-center p-4">
         <div className="text-white text-xl">Loading user data...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 overflow-x-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxMGIxMDQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
       
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-black font-bold">₿</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
+              <span className="text-black font-bold text-sm sm:text-base">₿</span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Welcome, {username}</h1>
-              <p className="text-green-300">Manage your Bitcoin portfolio</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">Welcome, {username}</h1>
+              <p className="text-green-300 text-sm sm:text-base">Manage your Bitcoin portfolio</p>
             </div>
           </div>
-          <Button onClick={handleSignOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800">
+          <Button onClick={handleSignOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800 w-full sm:w-auto">
             Logout
           </Button>
         </div>
 
         {/* Bitcoin Chart Section */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <BitcoinChart />
         </div>
 
         {/* User ID Card */}
         <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-4">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <User className="w-5 h-5 mr-2" />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex items-center text-lg sm:text-xl">
+              <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Your User ID
             </CardTitle>
-            <CardDescription className="text-green-300">
+            <CardDescription className="text-green-300 text-sm">
               Share this ID with the admin when making deposits
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
-              <div className="flex items-center space-x-2">
-                <code className="flex-1 bg-black p-3 rounded text-green-400 font-mono text-sm break-all">
+            <div className="bg-gray-900/50 p-3 sm:p-4 rounded-lg border border-green-600">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                <code className="flex-1 bg-black p-2 sm:p-3 rounded text-green-400 font-mono text-xs sm:text-sm break-all overflow-hidden">
                   {user?.id}
                 </code>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => copyToClipboard(user?.id || "")}
-                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                  className="border-green-600 text-green-300 hover:bg-green-800 shrink-0 w-full sm:w-auto"
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -253,67 +253,70 @@ const UserDashboard = () => {
         </Card>
 
         {/* Balance Card */}
-        <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-8">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Wallet className="w-5 h-5 mr-2" />
+        <Card className="bg-black/90 border-green-700 backdrop-blur-sm mb-6 sm:mb-8">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white flex items-center text-lg sm:text-xl">
+              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Current Balance
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-bold text-green-400 mb-2">
+            <div className="text-2xl sm:text-4xl font-bold text-green-400 mb-2 break-words">
               {balance.toFixed(8)} BTC
             </div>
-            <p className="text-green-300">Available for withdrawal</p>
+            <p className="text-green-300 text-sm sm:text-base">Available for withdrawal</p>
           </CardContent>
         </Card>
 
         <Tabs defaultValue="deposit" className="w-full">
-          <TabsList className="bg-black border-green-700">
-            <TabsTrigger value="deposit" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
-              <ArrowDownLeft className="w-4 h-4 mr-2" />
-              Deposit
+          <TabsList className="bg-black border-green-700 w-full sm:w-auto grid grid-cols-3 sm:flex">
+            <TabsTrigger value="deposit" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black text-xs sm:text-sm">
+              <ArrowDownLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Deposit</span>
+              <span className="sm:hidden">Dep.</span>
             </TabsTrigger>
-            <TabsTrigger value="withdraw" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
-              <ArrowUpRight className="w-4 h-4 mr-2" />
-              Withdraw
+            <TabsTrigger value="withdraw" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black text-xs sm:text-sm">
+              <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Withdraw</span>
+              <span className="sm:hidden">With.</span>
             </TabsTrigger>
-            <TabsTrigger value="history" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black">
+            <TabsTrigger value="history" className="text-green-300 data-[state=active]:bg-green-600 data-[state=active]:text-black text-xs sm:text-sm">
               History
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="deposit" className="space-y-4">
+          <TabsContent value="deposit" className="space-y-4 mt-4">
             <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">Deposit Bitcoin</CardTitle>
-                <CardDescription className="text-green-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-lg sm:text-xl">Deposit Bitcoin</CardTitle>
+                <CardDescription className="text-green-300 text-sm">
                   Send Bitcoin to the address below, then email the admin with your User ID
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* QR Code Section */}
-                <div className="flex justify-center mb-6">
-                  <div className="bg-white p-4 rounded-lg">
+                <div className="flex justify-center mb-4 sm:mb-6">
+                  <div className="bg-white p-3 sm:p-4 rounded-lg">
                     <QRCodeSVG 
                       value={depositAddress} 
-                      size={200}
+                      size={150}
                       level="M"
+                      className="sm:w-[200px] sm:h-[200px]"
                     />
                   </div>
                 </div>
 
-                <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
+                <div className="bg-gray-900/50 p-3 sm:p-4 rounded-lg border border-green-600">
                   <Label className="text-green-200 text-sm font-medium">Your Bitcoin Deposit Address</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <code className="flex-1 bg-black p-3 rounded text-green-400 font-mono text-sm break-all">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mt-2">
+                    <code className="flex-1 bg-black p-2 sm:p-3 rounded text-green-400 font-mono text-xs sm:text-sm break-all overflow-hidden">
                       {depositAddress}
                     </code>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => copyToClipboard(depositAddress)}
-                      className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                      className="border-green-600 text-green-300 hover:bg-green-800 shrink-0 w-full sm:w-auto"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
@@ -321,25 +324,25 @@ const UserDashboard = () => {
                 </div>
 
                 {/* Admin Email Section */}
-                <div className="bg-gray-900/50 p-4 rounded-lg border border-green-600">
+                <div className="bg-gray-900/50 p-3 sm:p-4 rounded-lg border border-green-600">
                   <Label className="text-green-200 text-sm font-medium">Admin Email for Deposits</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <code className="flex-1 bg-black p-3 rounded text-green-400 font-mono text-sm break-all">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mt-2">
+                    <code className="flex-1 bg-black p-2 sm:p-3 rounded text-green-400 font-mono text-xs sm:text-sm break-all overflow-hidden">
                       Smartchaininvestors@gmail.com
                     </code>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => copyToClipboard("Smartchaininvestors@gmail.com")}
-                      className="border-green-600 text-green-300 hover:bg-green-800 shrink-0"
+                      className="border-green-600 text-green-300 hover:bg-green-800 shrink-0 w-full sm:w-auto"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
                 
-                <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4">
-                  <p className="text-blue-200 text-sm">
+                <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-3 sm:p-4">
+                  <p className="text-blue-200 text-sm font-medium">
                     <strong>Deposit Process:</strong>
                   </p>
                   <ol className="text-blue-200 text-sm mt-2 list-decimal list-inside space-y-1">
@@ -351,7 +354,7 @@ const UserDashboard = () => {
                   </ol>
                 </div>
                 
-                <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-4">
+                <div className="bg-yellow-600/20 border border-yellow-600/30 rounded-lg p-3 sm:p-4">
                   <p className="text-yellow-200 text-sm">
                     <strong>Important:</strong> Only send Bitcoin (BTC) to this address. 
                     Always include your User ID when contacting the admin about deposits.
@@ -361,11 +364,11 @@ const UserDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="withdraw" className="space-y-4">
+          <TabsContent value="withdraw" className="space-y-4 mt-4">
             <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">Withdraw Bitcoin</CardTitle>
-                <CardDescription className="text-green-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-lg sm:text-xl">Withdraw Bitcoin</CardTitle>
+                <CardDescription className="text-green-300 text-sm">
                   Request a withdrawal to your Bitcoin address
                 </CardDescription>
               </CardHeader>
@@ -405,7 +408,7 @@ const UserDashboard = () => {
                   Submit Withdrawal Request
                 </Button>
                 
-                <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-4">
+                <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-3 sm:p-4">
                   <p className="text-blue-200 text-sm">
                     <strong>Note:</strong> Withdrawal requests require manual approval from our admin team. 
                     You will be notified once your request is processed.
@@ -415,11 +418,11 @@ const UserDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent value="history" className="space-y-4 mt-4">
             <Card className="bg-black/90 border-green-700 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white">Withdrawal History</CardTitle>
-                <CardDescription className="text-green-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-lg sm:text-xl">Withdrawal History</CardTitle>
+                <CardDescription className="text-green-300 text-sm">
                   Track your withdrawal requests and their status
                 </CardDescription>
               </CardHeader>
@@ -427,24 +430,26 @@ const UserDashboard = () => {
                 {userWithdrawals.length === 0 ? (
                   <p className="text-green-400 text-center py-8">No withdrawal requests yet</p>
                 ) : (
-                  <div className="space-y-4">
-                    {userWithdrawals.map((request) => (
-                      <div key={request.id} className="p-4 bg-gray-900/50 rounded-lg border border-green-600">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <p className="text-white font-semibold">{Number(request.amount).toFixed(8)} BTC</p>
-                            <p className="text-green-300 text-sm">{new Date(request.created_at).toLocaleString()}</p>
+                  <ScrollArea className="h-64 sm:h-80">
+                    <div className="space-y-4 pr-4">
+                      {userWithdrawals.map((request) => (
+                        <div key={request.id} className="p-3 sm:p-4 bg-gray-900/50 rounded-lg border border-green-600">
+                          <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
+                            <div>
+                              <p className="text-white font-semibold text-sm sm:text-base">{Number(request.amount).toFixed(8)} BTC</p>
+                              <p className="text-green-300 text-xs sm:text-sm">{new Date(request.created_at).toLocaleString()}</p>
+                            </div>
+                            <Badge className={`${getStatusColor(request.status)} text-white capitalize text-xs`}>
+                              {request.status}
+                            </Badge>
                           </div>
-                          <Badge className={`${getStatusColor(request.status)} text-white capitalize`}>
-                            {request.status}
-                          </Badge>
+                          <p className="text-green-400 text-xs break-all">
+                            To: {request.btc_address}
+                          </p>
                         </div>
-                        <p className="text-green-400 text-xs break-all">
-                          To: {request.btc_address}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </CardContent>
             </Card>
