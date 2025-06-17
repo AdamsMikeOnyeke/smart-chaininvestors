@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,8 @@ const UserDashboard = () => {
   const [withdrawalAddress, setWithdrawalAddress] = useState("");
   const [userWithdrawals, setUserWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [showQR, setShowQR] = useState(false);
+  const [btcPrice, setBtcPrice] = useState(0);
+  const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState(false);
   const { toast } = useToast();
 
   // Updated BTC address for deposits
@@ -38,8 +41,21 @@ const UserDashboard = () => {
       console.log('User logged in, loading dashboard data for:', user.email);
       loadUserBalance();
       loadUserWithdrawals();
+      fetchBitcoinPrice();
     }
   }, [user]);
+
+  const fetchBitcoinPrice = async () => {
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+      if (response.ok) {
+        const data = await response.json();
+        setBtcPrice(data.bitcoin.usd);
+      }
+    } catch (error) {
+      console.error('Error fetching Bitcoin price:', error);
+    }
+  };
 
   const loadUserBalance = async () => {
     try {
@@ -107,6 +123,8 @@ const UserDashboard = () => {
   };
 
   const handleWithdrawal = async () => {
+    if (isSubmittingWithdrawal) return; // Prevent multiple submissions
+
     const amount = parseFloat(withdrawalAmount);
     
     if (!withdrawalAmount || !withdrawalAddress) {
@@ -136,6 +154,8 @@ const UserDashboard = () => {
       return;
     }
 
+    setIsSubmittingWithdrawal(true);
+
     try {
       console.log('Submitting withdrawal request...');
       const { error } = await supabase
@@ -164,6 +184,8 @@ const UserDashboard = () => {
         description: "Failed to submit withdrawal request.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmittingWithdrawal(false);
     }
   };
 
@@ -186,6 +208,11 @@ const UserDashboard = () => {
   };
 
   const username = user?.user_metadata?.username || user?.email || 'User';
+
+  // Calculate USD equivalents
+  const balanceUSD = balance * btcPrice;
+  const withdrawalAmountNum = parseFloat(withdrawalAmount) || 0;
+  const withdrawalUSD = withdrawalAmountNum * btcPrice;
 
   // Show loading state if user is not loaded yet
   if (!user) {
@@ -269,6 +296,11 @@ const UserDashboard = () => {
             <div className="text-2xl sm:text-4xl font-bold text-green-400 mb-2 break-words">
               {balance.toFixed(8)} BTC
             </div>
+            {btcPrice > 0 && (
+              <div className="text-lg sm:text-xl font-semibold text-white mb-2">
+                ≈ ${balanceUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+              </div>
+            )}
             <p className="text-green-300 text-sm sm:text-base">Available for withdrawal</p>
           </CardContent>
         </Card>
@@ -389,9 +421,21 @@ const UserDashboard = () => {
                     onChange={(e) => setWithdrawalAmount(e.target.value)}
                     className="bg-gray-900 border-green-600 text-white"
                   />
-                  <p className="text-xs text-green-400">
-                    Available: {balance.toFixed(8)} BTC
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-xs text-green-400">
+                      Available: {balance.toFixed(8)} BTC
+                      {btcPrice > 0 && (
+                        <span className="text-green-300">
+                          {" "}(${balanceUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD)
+                        </span>
+                      )}
+                    </p>
+                    {withdrawalAmount && btcPrice > 0 && withdrawalAmountNum > 0 && (
+                      <p className="text-xs text-white">
+                        Withdrawal equivalent: ${withdrawalUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
+                      </p>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -408,9 +452,9 @@ const UserDashboard = () => {
                 <Button 
                   onClick={handleWithdrawal}
                   className="w-full bg-green-600 hover:bg-green-700 text-black"
-                  disabled={!withdrawalAmount || !withdrawalAddress || parseFloat(withdrawalAmount || "0") > balance}
+                  disabled={!withdrawalAmount || !withdrawalAddress || parseFloat(withdrawalAmount || "0") > balance || isSubmittingWithdrawal}
                 >
-                  Submit Withdrawal Request
+                  {isSubmittingWithdrawal ? "Submitting..." : "Submit Withdrawal Request"}
                 </Button>
                 
                 <div className="bg-blue-600/20 border border-blue-600/30 rounded-lg p-3 sm:p-4">
