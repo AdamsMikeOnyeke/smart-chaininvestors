@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User } from "lucide-react";
+import { Copy, Wallet, ArrowUpRight, ArrowDownLeft, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { QRCodeSVG } from "qrcode.react";
@@ -202,7 +202,7 @@ const UserDashboard = () => {
       
       <div className="relative z-10 max-w-6xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+        <div className="flex justify-between items-start mb-6 sm:mb-8">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
               <span className="text-black font-bold text-sm sm:text-base">₿</span>
@@ -212,8 +212,13 @@ const UserDashboard = () => {
               <p className="text-green-300 text-sm sm:text-base">Manage your Bitcoin portfolio</p>
             </div>
           </div>
-          <Button onClick={handleSignOut} variant="outline" className="border-green-600 text-green-300 hover:bg-green-800 w-full sm:w-auto">
-            Logout
+          <Button 
+            onClick={handleSignOut} 
+            variant="outline" 
+            className="border-green-600 text-green-300 hover:bg-green-800 flex items-center gap-2 px-3 sm:px-4 py-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Logout</span>
           </Button>
         </div>
 
