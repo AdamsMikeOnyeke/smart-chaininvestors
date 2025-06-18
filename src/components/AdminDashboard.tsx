@@ -270,7 +270,7 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-start mb-6 sm:mb-8">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-black font-bold text-sm sm:text-base">₿</span>
+            <img src="\file_0000000057986246b56fe43d4c305351.png" alt="logo" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
