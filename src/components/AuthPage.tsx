@@ -37,7 +37,7 @@ const AuthPage = () => {
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
-              <span className="text-black font-bold text-xl">₿</span>
+            <img src="\file_000000003b4c6246bca1230474a913a2.png" alt="logo" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-white">Smartchaininvestors</CardTitle>
