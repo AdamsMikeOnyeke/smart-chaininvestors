@@ -224,7 +224,7 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-green-900 overflow-x-hidden overflow-y-hidden">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxMGIxMDQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
       
       <div className="relative z-10 max-w-6xl mx-auto p-4 sm:p-6">
@@ -505,6 +505,49 @@ const UserDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+
+          {/* Footer */}
+          <footer className="bg-black border-t border-green-700 py-12 px-4">
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-4 gap-8">
+            {/* Company Info */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                  <img src="\file_000000003b4c6246bca1230474a913a2.png" alt="logo" />
+                </div>
+                <span className="text-2xl font-bold text-white">Smartchaininvestors</span>
+              </div>
+              <p className="text-green-200 mb-4 max-w-md">
+                Your trusted partner in Bitcoin investment. Secure, profitable, and transparent trading since 2019.
+              </p>
+              <p className="text-green-200 text-sm">
+                Making cryptocurrency investment accessible to everyone, everywhere.
+              </p>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-white font-bold mb-4">Get Started</h4>
+              <Link to="/auth">
+                <Button className="bg-green-600 hover:bg-green-700 text-black w-full mb-4">
+                  Create Account
+                </Button>
+              </Link>
+              <p className="text-green-200 text-sm">
+                Join thousands of successful Bitcoin investors today.
+              </p>
+            </div>
+          </div>
+
+          <div className="border-t border-green-700 mt-8 pt-8 text-center">
+            <p className="text-green-200">
+              © {new Date().getFullYear()} Smartchaininvestors. All rights reserved. | Empowering Your Bitcoin Investment Journey
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
