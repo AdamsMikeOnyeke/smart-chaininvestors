@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('Sign up successful');
         toast({
           title: "Account Created",
-          description: "Your account has been created successfully, a confirmation link has been sent to your email from SUPABASE",
+          description: "Your account has been created successfully, a confirmation link has been sent to your email from SUPABASE. click the 'confirm email' and return to this page to sign in.",
         });
       }
 
