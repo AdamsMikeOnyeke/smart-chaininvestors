@@ -95,6 +95,7 @@ const Homepage = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
                 <Bitcoin className="text-black font-bold text-xl" />
               </div>
+              <img src="\file_0000000057986246b56fe43d4c305351.png" alt="" />
               <span className="text-2xl font-bold text-white">Smartchaininvestors</span>
             </div>
 
