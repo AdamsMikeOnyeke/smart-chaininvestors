@@ -93,9 +93,8 @@ const Homepage = () => {
             {/* Logo */}
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
-                <Bitcoin className="text-black font-bold text-xl" />
+              <img src="\file_000000003b4c6246bca1230474a913a2.png" alt="logo" />
               </div>
-              <img src="\file_0000000057986246b56fe43d4c305351.png" alt="" />
               <span className="text-2xl font-bold text-white">Smartchaininvestors</span>
             </div>
 
